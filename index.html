@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html ng-app="msApp">
+<head>
+    <title>g u i d e | p l a n</title>
+
+    <!-- libs -->
+    <script type="text/javascript" src="js/lib/angular/angular.js"></script>
+    <script type="text/javascript" src="js/lib/angular/angular-route.js"></script>
+    <script type="text/javascript" src="js/lib/angular/angular-resource.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/lib/bootstrap/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="css/munter.css">
+    
+    <!-- your stuff below -->
+    <script type="text/javascript" src="js/munter/munter.js"></script>
+
+</head>
+<body>
+<!-- things to add:
+convert units when switching?
+uploading files
+formatting for printout
+summary view
+fix movement when adding method
+animate method dropdown
+UTM list
+-->
+    <div ng-controller="MunterSystemCtrl">		
+		<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+			<p class="navbar-text pull-left">g u i d e | p l a n</p>
+			<ul class="nav nav-pills">
+				<li class="text-center pull-right"><a class="navBarText" href="chauvin_about.html">?</a></li>
+				<li class="text-center pull-right"><a class="navBarText" href="chauvin_about.html">upload</a></li>						
+				<li class="text-center pull-right"><a class="navBarText" href="chauvin_about.html">output view</a></li>		
+				<li class="text-center pull-right"><a class="navBarText" ng-click="setMaxElevation(); setMinElevation(); setElevationGain(); setElevationLoss(); setTotalDistance();">summary view</a></li>
+				<li class="text-center pull-right"><a class="navBarText" href="chauvin_about.html">input view</a></li>
+				</ul>	
+		</nav>	
+		
+        <div>
+			<form role="form">
+				
+				<!-- user "settings" -->
+				<div class = "row">
+					<label class="col-xs-1 inputCell text-right control-label"> tour name: </label>
+					<div class="col-xs-5">
+						<textarea type="input" class="form-control text-left inputCell" id="tourName" placeholder="tour name" ng-model="munterTrip.tourName" ng-change="change()" rows="3"> </textarea>
+					</div>
+					
+					<div class="col-xs-6">
+						<div class="form-group form-horizontal">
+							<div class="col-xs-1 text-right inputCell"></div>
+							<label class="col-xs-2 text-right inputCell control-label"> date: </label>
+							<div class="col-xs-3">
+								<input type="input" class="form-control inputCell text-center" id="tourDate" placeholder="yyyy-mm-dd" ng-model="munterTrip.tourDate" ng-change="change()" />
+							</div>
+							<label class="col-xs-4 text-right inputCell control-label"> distance units: </label>
+							<div class="col-xs-2">
+							<select class="form-control inputCell text-center" ng-model="munterTrip.distanceUnit" name="distanceUnit" ng-options="v for (k,v) in distanceUnits" ng-change="change()"></select>
+							</div>
+						</div>
+						<div class = "form-group form-horizontal">
+							<div class="col-xs-1 text-right inputCell"> </div>
+							<label class="col-xs-2 text-right inputCell control-label"> utm datum: </label>
+							<div class="col-xs-3">
+								<input type="input" class="form-control text-center inputCell" id="datum" placeholder="-" ng-model="munterTrip.utmDatum" ng-change="change()" />
+							</div>
+							<label class="col-xs-4 text-right control-label"> elevation units: </label>
+							<div class="col-xs-2">
+								<select class="form-control inputCell" ng-model="munterTrip.elevationUnit" name="elevationUnit" ng-options="v for (k,v) in elevationUnits" ng-change="change()"></select>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<br />
+				
+				<!-- table headers -->
+				<div style="background-color: #f2f0f4; text-style:bold">
+					<div class = "row text-center" style="padding-bottom:0px; padding-top: 10px; margin-top: 10px; border-top: 1px solid #ccc; margin-left:0px; margin-right:0px"> 
+						<div class="col-xs-1"># </div>
+						<div class="col-xs-2"style="border-bottom: 1px solid #ccc;"> utm coordinates </div>
+						<div class="col-xs-1"> elevation </div>
+						<div class="col-xs-2"style="border-bottom: 1px solid #ccc;"> distance, {{munterTrip.distanceUnit}} </div>
+						<div class="col-xs-1"> time </div>
+						<div class="col-xs-1"> time </div>
+						<div class="col-xs-1" > aspect </div>
+						<div class="col-xs-3"> notes </div>
+					</div>
+					
+					<div class = "row text-center" style="padding-top:0px; padding-bottom: 10px; margin-bottom:0px; border-bottom: 1px solid #ccc; margin-left:0px; margin-right:0px">
+						<div class="col-xs-1"> -</div>
+						<div class="col-xs-1"> mE </div>
+						<div class="col-xs-1"> mN </div>
+						<div class="col-xs-1"> {{munterTrip.elevationUnit}} </div>
+						<div class="col-xs-1"> linear </div>
+						<div class ="col-xs-1"> actual </div>
+						<div class="col-xs-1"> method </div>
+						<div class="col-xs-1"> hr:min </div>
+						<div class="col-xs-1"> - </div>
+						<div class="col-xs-3"> - </div>
+					</div>
+				</div>
+				
+				<!-- rate input - drops down when necessary -->
+				<div class = "row" style="background-color:#f4e4c7; padding-top: 10px; padding-bottom: 0px; margin-bottom:10px; border-bottom: 1px solid #ccc; margin-left:0px; margin-right:0px">
+					<div class="col-xs-4 inputCell" ng-show="showRateInput(1) || showPitchesInput(1) || showTimeInput(1)"> </div>
+					<div class="col-xs-4 inputCell" ng-show="showRateInput(2) || showPitchesInput(2) || showTimeInput(2)"> </div>
+					<div class="col-xs-4 inputCell" ng-show="showRateInput(3) || showPitchesInput(3) || showTimeInput(3)"> </div>
+					
+					<div class="col-xs-1 inputCell" ng-show="showRateInput(1) || showPitchesInput(1) || showTimeInput(1)"><button type="button" class="btn btn-default" ng-click="setShowMethodInputs(1000)">enter</button></div>
+					<div class="col-xs-1 inputCell" ng-show="showRateInput(2) || showPitchesInput(2) || showTimeInput(2)"><button type="button" class="btn btn-default" ng-click="setShowMethodInputs(1000)">enter</button></div>
+					<div class="col-xs-1 inputCell" ng-show="showRateInput(3) || showPitchesInput(3) || showTimeInput(3)"><button type="button" class="btn btn-default" ng-click="setShowMethodInputs(1000)">enter</button></div>
+					
+					<!-- rate input -->
+					<label class="col-xs-1 text-right control-label" ng-show="showRateInput(1)"><p class="inputCell">enter rate:</p></label>
+					<label class="col-xs-1 text-right control-label" ng-show="showRateInput(2)"><p class="inputCell">enter rate:</p></label>
+					<label class="col-xs-1 text-right control-label" ng-show="showRateInput(3)"><p class="inputCell">enter rate:</p></label>
+
+					<div class="col-xs-1 form-group" ng-show="showRateInput(1)" ng-class="{'has-error': !isValidRate(munterTrip.rate1)}"><input type="input" class="form-control text-center inputCell" id="rate1" placeholder="-" ng-model="munterTrip.rate1"  ng-change="change()"/></div>
+					<div class="col-xs-1 form-group" ng-show="showRateInput(2)" ng-class="{'has-error': !isValidRate(munterTrip.rate2)}"><input type="input" class="form-control text-center inputCell" id="rate2" placeholder="-" ng-model="munterTrip.rate2"  ng-change="change()"/></div>
+					<div class="col-xs-1 form-group" ng-show="showRateInput(3)" ng-class="{'has-error': !isValidRate(munterTrip.rate3)}"><input type="input" class="form-control text-center inputCell" id="rate3" placeholder="-" ng-model="munterTrip.rate3"  ng-change="change()"/></div>
+					
+					<div class="col-xs-1 inputCell control-label" ng-show="showRateInput(1)"><p class="inputCell text-left">{{rateUnits(1)}}</p></div>
+					<div class="col-xs-1 inputCell control-label" ng-show="showRateInput(2)"><p class="inputCell text-left">{{rateUnits(2)}}</p></div>
+					<div class="col-xs-1 inputCell control-label" ng-show="showRateInput(3)"><p class="inputCell text-left">{{rateUnits(3)}}</p></div>
+					
+					<!-- pitches input -->
+					<label class="col-xs-2 text-right control-label" ng-show="showPitchesInput(1)"><p class="inputCell">enter number of pitches:</p></label>
+					<label class="col-xs-2 text-right control-label" ng-show="showPitchesInput(2)"><p class="inputCell">enter number of pitches:</p></label>
+					<label class="col-xs-2 text-right control-label" ng-show="showPitchesInput(3)"><p class="inputCell">enter number of pitches:</p></label>
+
+					<div class="col-xs-1 text-right form-group" ng-show="showPitchesInput(1)" ng-class="{'has-error': !isValidPitches(munterTrip.pitch1)}"><input type="input" class="form-control text-center inputCell" id="pitch1" placeholder="-" ng-model="munterTrip.pitch1"  ng-change="change()"/></div>
+					<div class="col-xs-1 text-right form-group" ng-show="showPitchesInput(2)" ng-class="{'has-error': !isValidPitches(munterTrip.pitch2)}"><input type="input" class="form-control text-center inputCell" id="pitch2" placeholder="-" ng-model="munterTrip.pitch2"  ng-change="change()"/></div>
+					<div class="col-xs-1 text-right form-group" ng-show="showPitchesInput(3)" ng-class="{'has-error': !isValidPitches(munterTrip.pitch3)}"><input type="input" class="form-control text-center inputCell" id="pitch3" placeholder="-" ng-model="munterTrip.pitch3"  ng-change="change()"/></div>
+				
+					<!-- time input -->
+					<label class="col-xs-1 text-right control-label" ng-show="showTimeInput(1)"><p class="inputCell">enter time:</p></label>
+					<label class="col-xs-1 text-right control-label" ng-show="showTimeInput(2)"><p class="inputCell">enter time:</p></label>
+					<label class="col-xs-1 text-right control-label" ng-show="showTimeInput(3)"><p class="inputCell">enter time:</p></label>
+					
+					<div class="col-xs-1 form-group" ng-show="showTimeInput(1)" ng-class="{'has-error': !isValidHours(munterTrip.hour1)}"><input type="input" class="form-control text-center inputCell" id="hour1" placeholder="-" ng-model="munterTrip.hour1"  ng-change="change()"/></div>
+					<div class="col-xs-1 form-group" ng-show="showTimeInput(2)" ng-class="{'has-error': !isValidHours(munterTrip.hour2)}"><input type="input" class="form-control text-center inputCell" id="hour2" placeholder="-" ng-model="munterTrip.hour2"  ng-change="change()"/></div>
+					<div class="col-xs-1 form-group" ng-show="showTimeInput(3)" ng-class="{'has-error': !isValidHours(munterTrip.hour3}"><input type="input" class="form-control text-center inputCell" id="hour3" placeholder="-" ng-model="munterTrip.hour3"  ng-change="change()"/></div>
+					
+					<div class="col-xs-1 control-label" ng-show="showTimeInput(1)"><p class="inputCell text-left">hr</p></div>
+					<div class="col-xs-1 control-label" ng-show="showTimeInput(2)"><p class="inputCell text-left">hr</p></div>
+					<div class="col-xs-1 control-label" ng-show="showTimeInput(3)"><p class="inputCell text-left">hr</p></div>
+					
+					<div class="col-xs-1 form-group" ng-show="showTimeInput(1)" ng-class="{'has-error': !isValidMinutes(munterTrip.minute1)}"><input type="input" class="form-control text-center inputCell" id="minute1" placeholder="-" ng-model="munterTrip.minute1"  ng-change="change()"/></div>
+					<div class="col-xs-1 form-group" ng-show="showTimeInput(2)" ng-class="{'has-error': !isValidMinutes(munterTrip.minute2)}"><input type="input" class="form-control text-center inputCell" id="minute2" placeholder="-" ng-model="munterTrip.minute2"  ng-change="change()"/></div>
+					<div class="col-xs-1 form-group" ng-show="showTimeInput(3)" ng-class="{'has-error': !isValidMinutes(munterTrip.minute3)}"><input type="input" class="form-control text-center inputCell" id="minute3" placeholder="-" ng-model="munterTrip.minute3"  ng-change="change()"/></div>
+					
+					<div class="col-xs-1 control-label" ng-show="showTimeInput(1)"><p class="inputCell text-left">min</p></div>
+					<div class="col-xs-1 control-label" ng-show="showTimeInput(2)"><p class="inputCell text-left">min</p></div>
+					<div class="col-xs-1 control-label" ng-show="showTimeInput(3)"><p class="inputCell text-left">min</p></div>
+
+				</div>	
+				
+				
+				<!-- main user input table -->
+				<div class = "row text-center">
+					<div class="col-xs-1 inputColumn"> 
+						<p class="inputCell">0</p>
+						<p class="inputCell">1</p>
+						<p class="inputCell">2</p>
+						<p class="inputCell">3</p>
+					</div>
+					
+					<div class="col-xs-1 inputColumn">
+						<div class="form-group" ng-class="{'has-error': !isValidUTM(munterTrip.easting0)}"><input type="input" class="form-control inputCell" id="easting0" placeholder="-" ng-model="munterTrip.easting0"  ng-change="change()"/></div>
+						<div class="form-group" ng-class="{'has-error': !isValidUTM(munterTrip.easting1)}"><input type="input" class="form-control inputCell" id="easting1" placeholder="-" ng-model="munterTrip.easting1"  ng-change="change()"/></div>
+						<div class="form-group" ng-class="{'has-error': !isValidUTM(munterTrip.easting2)}"><input type="input" class="form-control inputCell" id="easting2" placeholder="-" ng-model="munterTrip.easting2"  ng-change="change()"/></div>
+						<div class="form-group" ng-class="{'has-error': !isValidUTM(munterTrip.easting3)}"><input type="input" class="form-control inputCell" id="easting3" placeholder="-" ng-model="munterTrip.easting3"  ng-change="change()"/></div>
+					</div>
+					
+					<div class="col-xs-1 inputColumn">
+						<div class="form-group" ng-class="{'has-error': !isValidUTM(munterTrip.northing0)}"><input type="input" class="form-control inputCell" id="northing0" placeholder="-" ng-model="munterTrip.northing0" ng-change="change()" /></div>
+						<div class="form-group" ng-class="{'has-error': !isValidUTM(munterTrip.northing1)}"><input type="input" class="form-control inputCell" id="northing1" placeholder="-" ng-model="munterTrip.northing1" ng-change="change()" /></div>
+						<div class="form-group" ng-class="{'has-error': !isValidUTM(munterTrip.northing2)}"><input type="input" class="form-control inputCell" id="northing2" placeholder="-" ng-model="munterTrip.northing2" ng-change="change()" /></div>
+						<div class="form-group" ng-class="{'has-error': !isValidUTM(munterTrip.northing3)}"><input type="input" class="form-control inputCell" id="northing3" placeholder="-" ng-model="munterTrip.northing3" ng-change="change()" /></div>
+					</div>
+					
+					<div class="col-xs-1 inputColumn">
+						<div class="form-group" ng-class="{'has-error': !isValidElevation(munterTrip.elevation0)}"><input type="input" class="form-control inputCell" id="elevation0" placeholder="-" ng-model="munterTrip.elevation0" ng-change="change()" /></div>
+						<div class="form-group" ng-class="{'has-error': !isValidElevation(munterTrip.elevation1)}"><input type="input" class="form-control inputCell" id="elevation1" placeholder="-" ng-model="munterTrip.elevation1" ng-change="change()" /></div>
+						<div class="form-group" ng-class="{'has-error': !isValidElevation(munterTrip.elevation2)}"><input type="input" class="form-control inputCell" id="elevation2" placeholder="-" ng-model="munterTrip.elevation2" ng-change="change()" /></div>
+						<div class="form-group" ng-class="{'has-error': !isValidElevation(munterTrip.elevation3)}"><input type="input" class="form-control inputCell" id="elevation3" placeholder="-" ng-model="munterTrip.elevation3" ng-change="change()" /></div>
+					</div>
+					
+					<div class="col-xs-1 inputColumn">
+						<p class="inputCell">-<p>
+						<p class="inputCell" ng-show="showLinearDistance(1)">{{displayLinearDistance(1)}}</p><p class="inputCell" ng-show="!showLinearDistance(1)"></p>
+						<p class="inputCell" ng-show="showLinearDistance(2)">{{displayLinearDistance(2)}}</p><p class="inputCell" ng-show="!showLinearDistance(2)"></p>
+						<p class="inputCell" ng-show="showLinearDistance(3)">{{displayLinearDistance(3)}}</p><p class="inputCell" ng-show="!showLinearDistance(3)"></p>
+					</div>
+					
+					<div class="col-xs-1 inputColumn">
+						<p class="inputCell">-<p>
+						<div class="form-group" ng-class="{'has-error': !isValidDistance(munterTrip.actualDistance1)}"><input type="input" class="form-control inputCell" id="actualDistance1" placeholder="-" ng-model="munterTrip.actualDistance1"  ng-change="change()"/></div>
+						<div class="form-group" ng-class="{'has-error': !isValidDistance(munterTrip.actualDistance2)}"><input type="input" class="form-control inputCell" id="actualDistance2" placeholder="-" ng-model="munterTrip.actualDistance2"  ng-change="change()"/></div>
+						<div class="form-group" ng-class="{'has-error': !isValidDistance(munterTrip.actualDistance3)}"><input type="input" class="form-control inputCell" id="actualDistance3" placeholder="-" ng-model="munterTrip.actualDistance3"  ng-change="change()"/></div>
+					</div>
+					
+					<div class ="col-xs-1 inputColumn">
+						<p class="inputCell">-<p>
+						<select class="form-control inputCell" ng-model="munterTrip.method1" name="method1" ng-options="v for (k,v) in methods" ng-change="change()" ng-click="setShowMethodInputs(1)"></select>
+						<select class="form-control inputCell" ng-model="munterTrip.method2" name="method2" ng-options="v for (k,v) in methods" ng-change="change()" ng-click="setShowMethodInputs(2)"></select>
+						<select class="form-control inputCell" ng-model="munterTrip.method3" name="method3" ng-options="v for (k,v) in methods" ng-change="change()" ng-click="setShowMethodInputs(3)"></select>
+					</div>
+					
+					<div class="col-xs-1 inputColumn">
+						<p class="inputCell">-<p>
+						<p class="inputCell" ng-show="showTime(1)">{{displayTime(1)}}</p><p class="inputCell" ng-show="!showTime(1)"></p>
+						<p class="inputCell" ng-show="showTime(2)">{{displayTime(2)}}</p><p class="inputCell" ng-show="!showTime(2)"></p>
+						<p class="inputCell" ng-show="showTime(3)">{{displayTime(3)}}</p><p class="inputCell" ng-show="!showTime(3)"></p>
+					</div>
+					
+					<div class="col-xs-1 inputColumn"> 
+						<p class="inputCell">-<p>
+						<input type="input" class="form-control text-center inputCell" id="aspect1" placeholder="-" ng-model="munterTrip.aspect1"  ng-change="change()"/>
+						<input type="input" class="form-control text-center inputCell" id="aspect2" placeholder="-" ng-model="munterTrip.aspect2"  ng-change="change()"/>
+						<input type="input" class="form-control text-center inputCell" id="aspect3" placeholder="-" ng-model="munterTrip.aspect3"  ng-change="change()"/>
+					</div>
+					
+					<div class="col-xs-3 inputColumn">
+						<input type="input" class="form-control text-center inputCell" id="notes" placeholder="-" ng-model="munterTrip.note0" ng-change="change()"/>
+						<input type="input" class="form-control text-center inputCell" id="notes" placeholder="-" ng-model="munterTrip.note1" ng-change="change()"/>
+						<input type="input" class="form-control text-center inputCell" id="notes" placeholder="-" ng-model="munterTrip.note2" ng-change="change()"/>
+						<input type="input" class="form-control text-center inputCell" id="notes" placeholder="-" ng-model="munterTrip.note3" ng-change="change()"/>
+					</div>
+				</div>	
+			</form>	
+		</div>	
+		
+		<div>
+			<div class="row">
+				<div class="col-xs-2">tour name:</div>
+				<div class="col-xs-2">{{munterTrip.tourName}}</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-xs-2">tour date:</div>
+				<div class="col-xs-2">{{munterTrip.tourDate}}</div>
+			</div>
+		
+			<div class="row">
+				<div class="col-xs-2">utm datum:</div>
+				<div class="col-xs-2">{{munterTrip.utmDatum}}</div>
+			</div>
+		
+			<div class="row">
+				<div class="col-xs-2">max elevation:</div>
+				<div class="col-xs-2">{{getMaxElevation()}} {{munterTrip.elevationUnit}}</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-xs-2">min elevation:</div>
+				<div class="col-xs-2">{{getMinElevation()}} {{munterTrip.elevationUnit}}</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-xs-2">total elevation gain:</div>
+				<div class="col-xs-2">{{getElevationGain()}} {{munterTrip.elevationUnit}}</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-xs-2">total elevation loss:</div>
+				<div class="col-xs-2">{{getElevationLoss()}} {{munterTrip.elevationUnit}}</div>
+			</div>
+						
+			<div class="row">
+				<div class="col-xs-2">total distance:</div>
+				<div class="col-xs-2">{{getTotalDistance()}} {{munterTrip.distanceUnit}}</div>
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>
