@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html ng-app="msApp2">
+<head>
+    <title>g u i d e | p l a n</title>
+
+    <!-- libs -->
+    <script type="text/javascript" src="js/lib/angular/angular.js"></script>
+    <script type="text/javascript" src="js/lib/angular/angular-route.js"></script>
+    <script type="text/javascript" src="js/lib/angular/angular-resource.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/lib/bootstrap/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="css/munter.css">
+    
+    <!-- your stuff below -->
+    <script type="text/javascript" src="js/munter/munter2.js"></script>
+
+</head>
+<body>
+    <h1>the magic of AngularJS!</h1>
+    <br />
+    <br />
+    <div class="row">
+        <div class="col-md-12" ng-controller="RepeatModelCtrl">
+            <input type="button" class="btn btn-default" value="add a model!" ng-click="addModel()" />
+            <h3>the old 'ng-repeat'...</h3>
+            <ul class="list-unstyled">
+                <li ng-show="models.length == 0"><b><em>no models...add one!!!</em></b></li>
+                <li ng-repeat="(idx, _model) in models">
+                    <b>{{idx+1}}.</b>
+                    name: <input type="text" ng-model="_model.name" />
+                    prop1: <input type="text" ng-model="_model.prop1" />
+                    prop2: <input type="text" ng-model="_model.prop2" />
+                    &nbsp;
+                    &nbsp;
+                    &nbsp;
+                    <input type="button" class="btn btn-success btn-sm" value="save" ng-click="save(_model)" />
+                    <input type="button" class="btn btn-danger btn-sm" value="delete" ng-click="delete(_model)" />
+                    <span ng-show="_model.saved" style="color: green;">(saved)</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
