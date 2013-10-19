@@ -18,8 +18,8 @@
     <h1>the magic of AngularJS!</h1>
     <br />
     <br />
-    <div class="row">
-        <div class="col-md-12" ng-controller="RepeatModelCtrl">
+    <div class="row" ng-controller="MainCtrl">
+        <div class="col-md-8">
             <input type="button" class="btn btn-default" value="add a model!" ng-click="addModel()" />
             <h3>the old 'ng-repeat'...</h3>
             <ul class="list-unstyled">
@@ -27,16 +27,26 @@
                 <li ng-repeat="(idx, _model) in models">
                     <b>{{idx+1}}.</b>
                     name: <input type="text" ng-model="_model.name" />
-                    prop1: <input type="text" ng-model="_model.prop1" />
-                    prop2: <input type="text" ng-model="_model.prop2" />
+                    prop: <input type="text" ng-model="_model.prop" />
                     &nbsp;
                     &nbsp;
                     &nbsp;
                     <input type="button" class="btn btn-success btn-sm" value="save" ng-click="save(_model)" />
                     <input type="button" class="btn btn-danger btn-sm" value="delete" ng-click="delete(_model)" />
+                    <span>
+                        <b>diff A:</b> {{idx > 0 ? (models[idx].prop - models[idx-1].prop) : "n/a"}}
+                    </span>
+                    <span>
+                        <!-- using an array on the $scope -->
+                        <b>diff B:</b> {{diffs[idx]}}
+                    </span>
                     <span ng-show="_model.saved" style="color: green;">(saved)</span>
                 </li>
             </ul>
+        </div>
+        <div class="col-md-4">
+            <h3>sum of "prop1"'s</h3>
+            <b>sum: {{propTotal()}}</b>
         </div>
     </div>
 </body>
