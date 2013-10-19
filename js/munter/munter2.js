@@ -18,8 +18,10 @@ mA.controller("MainCtrl", ["$scope",
 
         $scope.delete = function(model){
             console.log("DELETE: ", model);
-            // JS method for removing an element from an Array is "pop(...)"
-            $scope.models.pop(model);
+            var idx = $scope.models.indexOf(model);
+            if (idx > -1) {
+                $scope.models.splice(idx, 1);
+            }
         };
 
         $scope.propTotal = function() {
