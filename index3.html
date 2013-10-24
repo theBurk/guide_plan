@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html ng-app="msApp">
+<head>
+    <title>g u i d e | p l a n</title>
+
+    <!-- libs -->
+    <script type="text/javascript" src="js/lib/angular/angular.js"></script>
+    <script type="text/javascript" src="js/lib/angular/angular-route.js"></script>
+    <script type="text/javascript" src="js/lib/angular/angular-resource.js"></script>
+    <script type="text/javascript" src="js/lib/angular/angular-animate.js"></script>	
+    <link rel="stylesheet" type="text/css" href="css/lib/bootstrap/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="css/munter.css">
+    
+    <!-- your stuff below -->
+    <script type="text/javascript" src="js/munter/munter3.js"></script>
+	
+</head>
+<body>
+<!-- things to add:
+convert units when switching?
+uploading files
+formatting for printout
+summary view
+fix movement when adding method
+animate method dropdown
+UTM list
+-->
+    <div ng-controller="GuidePlanCtrl">		
+		<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+			<p class="navbar-text pull-left">g u i d e | p l a n</p>
+			<ul class="nav nav-pills">
+				<li class="text-center pull-right"><a class="navBarText" href="chauvin_about.html">?</a></li>
+				<li class="text-center pull-right"><a class="navBarText" href="chauvin_about.html">upload</a></li>						
+				<li class="text-center pull-right"><a class="navBarText" href="chauvin_about.html">output view</a></li>		
+				<li class="text-center pull-right"><a class="navBarText" ng-click="setMaxElevation(); setMinElevation(); setElevationGain(); setElevationLoss(); setTotalDistance();">summary view</a></li>
+				<li class="text-center pull-right"><a class="navBarText" href="chauvin_about.html">input view</a></li>
+				</ul>	
+		</nav>	
+		
+        <div>
+			<form role="form">
+				
+				<!-- user "settings" -->
+				<div class = "row">
+					<label class="col-xs-1 inputCell text-right control-label"> tour name: </label>
+					<div class="col-xs-5">
+						<textarea type="input" class="form-control text-left inputCell" id="tourName" placeholder="tour name" ng-model="waypoint.tourName" ng-change="change()" rows="3"> </textarea>
+					</div>
+					
+					<div class="col-xs-6">
+						<div class="form-group form-horizontal">
+							<div class="col-xs-1 text-right inputCell"></div>
+							<label class="col-xs-2 text-right inputCell control-label"> date: </label>
+							<div class="col-xs-3">
+								<input type="input" class="form-control inputCell text-center" id="tourDate" placeholder="yyyy-mm-dd" ng-model="waypoint.tourDate" ng-change="change()" />
+							</div>
+							<label class="col-xs-4 text-right inputCell control-label"> distance units: </label>
+							<div class="col-xs-2">
+							<select class="form-control inputCell text-center" ng-model="waypoint.distanceUnit" name="distanceUnit" ng-options="v for (k,v) in distanceUnits" ng-change="change()"></select>
+							</div>
+						</div>
+						<div class = "form-group form-horizontal">
+							<div class="col-xs-1 text-right inputCell"> </div>
+							<label class="col-xs-2 text-right inputCell control-label"> utm datum: </label>
+							<div class="col-xs-3">
+								<input type="input" class="form-control text-center inputCell" id="datum" placeholder="-" ng-model="waypoint.utmDatum" ng-change="change()" />
+							</div>
+							<label class="col-xs-4 text-right control-label"> elevation units: </label>
+							<div class="col-xs-2">
+								<select class="form-control inputCell" ng-model="waypoint.elevationUnit" name="elevationUnit" ng-options="v for (k,v) in elevationUnits" ng-change="change()"></select>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<br />
+				
+				<!-- table headers -->
+				<div style="background-color: #f2f0f4; text-style:bold">
+					<div class = "row text-center" style="padding-bottom:0px; padding-top: 10px; margin-top: 10px; border-top: 1px solid #ccc; margin-left:0px; margin-right:0px"> 
+						<div class="col-xs-1"># </div>
+						<div class="col-xs-2"style="border-bottom: 1px solid #ccc;"> utm coordinates </div>
+						<div class="col-xs-1"> elevation </div>
+						<div class="col-xs-2"style="border-bottom: 1px solid #ccc;"> distance, {{waypoint.distanceUnit}} </div>
+						<div class="col-xs-1"> time </div>
+						<div class="col-xs-1"> time </div>
+						<div class="col-xs-1" > aspect </div>
+						<div class="col-xs-3"> notes </div>
+					</div>
+					
+					<div class = "row text-center" style="padding-top:0px; padding-bottom: 10px; margin-bottom:0px; border-bottom: 1px solid #ccc; margin-left:0px; margin-right:0px">
+						<div class="col-xs-1"> -</div>
+						<div class="col-xs-1"> mE </div>
+						<div class="col-xs-1"> mN </div>
+						<div class="col-xs-1"> {{waypoint.elevationUnit}} </div>
+						<div class="col-xs-1"> linear </div>
+						<div class ="col-xs-1"> actual </div>
+						<div class="col-xs-1"> method </div>
+						<div class="col-xs-1"> hr:min </div>
+						<div class="col-xs-1"> - </div>
+						<div class="col-xs-3"> - </div>
+					</div>
+				</div>
+				
+				<!-- main user input table -->
+				<div class = "row text-center" style="margin-top:15px;">
+					
+					<div ng-repeat="(idx, _waypoint) in waypoints">
+						<div class="row">
+							<div class="col-xs-1 inputColumn inputCell">{{idx}}</div>
+							<div class="form-group col-xs-1 inputColumn" ng-class="{'has-error': !isValidUTM(waypoints[idx].easting)}"  >   <input type="input" class="form-control inputCell" placeholder="-" ng-model="_waypoint.easting"             ng-change="change()"/></div>
+							<div class="form-group col-xs-1 inputColumn" ng-class="{'has-error': !isValidUTM(waypoints[idx].northing)}" >   <input type="input" class="form-control inputCell" placeholder="-" ng-model="_waypoint.northing"            ng-change="change()"/></div>
+							<div class="form-group col-xs-1 inputColumn" ng-class="{'has-error': !isValidUTM(waypoints[idx].elevation)}">   <input type="input" class="form-control inputCell" placeholder="-" ng-model="_waypoint.elevation"           ng-change="change()"/></div>
+							<div class="form-group col-xs-1 inputColumn" ng-show="showLinearDistance(idx)">{{prettyDistance(calcLinearDistance(idx))}}</div><div class="form-group col-xs-1 inputColumn" ng-show="!showLinearDistance(idx)">-</div>
+							<div class="form-group col-xs-1 inputColumn" ng-show="idx!=0" ng-class="{'has-error': !isValidDistance(waypoints[idx].actualDistance)}"><input type="input" class="form-control inputCell" placeholder="-" ng-model="_waypoint.actualDistance"  ng-change="change()"/></div><div class="form-group col-xs-1 inputColumn" ng-show="idx==0">-</div>
+							<div class="form-group col-xs-1 inputColumn" ng-show="idx!=0"> <select class="form-control inputCell" ng-model="_waypoint.method" ng-options="v for (k,v) in methods" ng-change="change()" ng-click="waypoints[idx].showMethodInput=true"></select></div><div class="form-group col-xs-1 inputColumn" ng-show="idx==0">-</div>
+							<div class="form-group col-xs-1 inputColumn" ng-show="showTime(idx)">{{prettyTime(calcTime(idx))}}</div><div class="form-group col-xs-1 inputColumn" ng-show="!showTime(idx)">-</div>
+							<div class="form-group col-xs-1 inputColumn" ng-show="idx!=0"                                                               >   <input type="input" class="form-control inputCell" placeholder="-" ng-model="_waypoint.aspect"              ng-change="change()"/></div><div class="form-group col-xs-1 inputColumn" ng-show="idx==0">-</div>
+							<div class="form-group col-xs-3 inputColumn"                                                                >   <input type="input" class="form-control inputCell" placeholder="-" ng-model="_waypoint.notes"                ng-change="change()"/></div>
+							
+						</div>
+							
+							
+						<!-- rate input - drops down when necessary -->
+						<div class="row" ng-show="showRateInput(idx) || showPitchesInput(idx) || showTimeInput(idx)" style="background-color:#f4e4c7; padding-top: 10px; padding-bottom: 0px; margin-bottom:10px; border-bottom: 1px solid #ccc; margin-left:0px; margin-right:0px">
+							<!-- spacing -->
+							<div class="col-xs-4 inputCell" ng-show="showRateInput(idx) || showPitchesInput(idx) || showTimeInput(idx)"> </div>
+							<div class="col-xs-1 inputCell" ng-show="showRateInput(idx) || showPitchesInput(idx) || showTimeInput(idx)"><button type="button" class="btn btn-default" ng-click="waypoints[idx].showMethodInput=false">enter</button></div>
+							
+							<!-- rate input -->
+							<label class="col-xs-1 text-right control-label" ng-show="showRateInput(idx)"><p class="inputCell">enter rate:</p></label>
+							<div class="col-xs-1 form-group" ng-show="showRateInput(idx)" ng-class="{'has-error': !isValidRate(waypoints[idx].rate)}"><input type="input" class="form-control text-center inputCell" placeholder="-" ng-model="_waypoint.rate"  ng-change="change()"/></div>
+							<div class="col-xs-1 inputCell control-label" ng-show="showRateInput(idx)"><p class="inputCell text-left">{{rateUnits(idx)}}</p></div>
+							
+							<!-- pitches input -->
+							<label class="col-xs-2 text-right control-label" ng-show="showPitchesInput(idx)"><p class="inputCell">enter number of pitches:</p></label>
+							<div class="col-xs-1 text-right form-group" ng-show="showPitchesInput(idx)" ng-class="{'has-error': !isValidPitches(waypoints[idx].pitches)}"><input type="input" class="form-control text-center inputCell" placeholder="-" ng-model="_waypoint.pitches"  ng-change="change()"/></div>
+						
+							<!-- time input -->
+							<label class="col-xs-1 text-right control-label" ng-show="showTimeInput(idx)"><p class="inputCell">enter time:</p></label>
+							<div class="col-xs-1 form-group" ng-show="showTimeInput(idx)" ng-class="{'has-error': !isValidHours(waypoints[idx].hours)}"><input type="input" class="form-control text-center inputCell" placeholder="-" ng-model="_waypoint.hours"  ng-change="change()"/></div>
+							<div class="col-xs-1 control-label" ng-show="showTimeInput(idx)"><p class="inputCell text-left">hr</p></div>
+							<div class="col-xs-1 form-group" ng-show="showTimeInput(idx)" ng-class="{'has-error': !isValidMinutes(waypoints[idx].minutes)}"><input type="input" class="form-control text-center inputCell" placeholder="-" ng-model="_waypoint.minutes"  ng-change="change()"/></div>
+							<div class="col-xs-1 control-label" ng-show="showTimeInput(idx)"><p class="inputCell text-left">min</p></div>
+
+						</div>	
+						
+						
+
+						<!--<input type="button" class="btn btn-success btn-sm" value="save" ng-click="save(_model)" />
+						<input type="button" class="btn btn-danger btn-sm" value="delete" ng-click="delete(_model)" />
+						<span>
+							<b>diff A:</b> {{idx > 0 ? (models[idx].prop - models[idx-1].prop) : "n/a"}}
+						</span>
+						<span>
+							<b>diff B:</b> {{diffs[idx]}}
+						</span>
+						<span ng-show="_model.saved" style="color: green;">(saved)</span>-->
+					</div>
+
+					<input type="button" class="btn btn-default" value="add waypoint" ng-click="addWaypoint()" />
+					
+
+					
+					
+				</div>	
+			</form>	
+		</div>	
+		
+		<br />
+		<br />
+		<br />
+		<br />
+		<br />
+		
+		<div>
+			<div class="row">
+				<div class="col-xs-2">tour name:</div>
+				<div class="col-xs-2">{{waypoint.tourName}}</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-xs-2">tour date:</div>
+				<div class="col-xs-2">{{waypoint.tourDate}}</div>
+			</div>
+		
+			<div class="row">
+				<div class="col-xs-2">utm datum:</div>
+				<div class="col-xs-2">{{waypoint.utmDatum}}</div>
+			</div>
+		
+			<div class="row">
+				<div class="col-xs-2">max elevation:</div>
+				<div class="col-xs-2">{{getMaxElevation()}} {{waypoint.elevationUnit}}</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-xs-2">min elevation:</div>
+				<div class="col-xs-2">{{getMinElevation()}} {{waypoint.elevationUnit}}</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-xs-2">total elevation gain:</div>
+				<div class="col-xs-2">{{getElevationGain()}} {{waypoint.elevationUnit}}</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-xs-2">total elevation loss:</div>
+				<div class="col-xs-2">{{getElevationLoss()}} {{waypoint.elevationUnit}}</div>
+			</div>
+						
+			<div class="row">
+				<div class="col-xs-2">total distance:</div>
+				<div class="col-xs-2">{{getTotalDistance()}} {{waypoint.distanceUnit}}</div>
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>

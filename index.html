@@ -7,12 +7,13 @@
     <script type="text/javascript" src="js/lib/angular/angular.js"></script>
     <script type="text/javascript" src="js/lib/angular/angular-route.js"></script>
     <script type="text/javascript" src="js/lib/angular/angular-resource.js"></script>
+    <script type="text/javascript" src="js/lib/angular/angular-animate.js"></script>	
     <link rel="stylesheet" type="text/css" href="css/lib/bootstrap/bootstrap.css">
 	<link rel="stylesheet" type="text/css" href="css/munter.css">
     
     <!-- your stuff below -->
     <script type="text/javascript" src="js/munter/munter.js"></script>
-
+	
 </head>
 <body>
 <!-- things to add:
@@ -103,24 +104,24 @@ UTM list
 				
 				<!-- rate input - drops down when necessary -->
 				<div class = "row" style="background-color:#f4e4c7; padding-top: 10px; padding-bottom: 0px; margin-bottom:10px; border-bottom: 1px solid #ccc; margin-left:0px; margin-right:0px">
-					<div class="col-xs-4 inputCell" ng-show="showRateInput(1) || showPitchesInput(1) || showTimeInput(1)"> </div>
+					<div class="col-xs-4 inputCell" ng-show="showRateInput(1) || showPitchesInput(1) || showTimeInput(1)"ng-animate=" 'animate' "> </div>
 					<div class="col-xs-4 inputCell" ng-show="showRateInput(2) || showPitchesInput(2) || showTimeInput(2)"> </div>
 					<div class="col-xs-4 inputCell" ng-show="showRateInput(3) || showPitchesInput(3) || showTimeInput(3)"> </div>
 					
-					<div class="col-xs-1 inputCell" ng-show="showRateInput(1) || showPitchesInput(1) || showTimeInput(1)"><button type="button" class="btn btn-default" ng-click="setShowMethodInputs(1000)">enter</button></div>
+					<div class="col-xs-1 inputCell" ng-show="showRateInput(1) || showPitchesInput(1) || showTimeInput(1)"ng-animate=" 'animate' "><button type="button" class="btn btn-default" ng-click="setShowMethodInputs(1000)">enter</button></div>
 					<div class="col-xs-1 inputCell" ng-show="showRateInput(2) || showPitchesInput(2) || showTimeInput(2)"><button type="button" class="btn btn-default" ng-click="setShowMethodInputs(1000)">enter</button></div>
 					<div class="col-xs-1 inputCell" ng-show="showRateInput(3) || showPitchesInput(3) || showTimeInput(3)"><button type="button" class="btn btn-default" ng-click="setShowMethodInputs(1000)">enter</button></div>
 					
 					<!-- rate input -->
-					<label class="col-xs-1 text-right control-label" ng-show="showRateInput(1)"><p class="inputCell">enter rate:</p></label>
+					<label class="col-xs-1 text-right control-label" ng-show="showRateInput(1)" ng-animate=" 'animate' "><p class="inputCell">enter rate:</p></label>
 					<label class="col-xs-1 text-right control-label" ng-show="showRateInput(2)"><p class="inputCell">enter rate:</p></label>
 					<label class="col-xs-1 text-right control-label" ng-show="showRateInput(3)"><p class="inputCell">enter rate:</p></label>
 
-					<div class="col-xs-1 form-group" ng-show="showRateInput(1)" ng-class="{'has-error': !isValidRate(munterTrip.rate1)}"><input type="input" class="form-control text-center inputCell" id="rate1" placeholder="-" ng-model="munterTrip.rate1"  ng-change="change()"/></div>
+					<div class="col-xs-1 form-group" ng-show="showRateInput(1)" ng-animate=" 'animate' " ng-class="{'has-error': !isValidRate(munterTrip.rate1)}"><input type="input" class="form-control text-center inputCell" id="rate1" placeholder="-" ng-model="munterTrip.rate1"  ng-change="change()"/></div>
 					<div class="col-xs-1 form-group" ng-show="showRateInput(2)" ng-class="{'has-error': !isValidRate(munterTrip.rate2)}"><input type="input" class="form-control text-center inputCell" id="rate2" placeholder="-" ng-model="munterTrip.rate2"  ng-change="change()"/></div>
 					<div class="col-xs-1 form-group" ng-show="showRateInput(3)" ng-class="{'has-error': !isValidRate(munterTrip.rate3)}"><input type="input" class="form-control text-center inputCell" id="rate3" placeholder="-" ng-model="munterTrip.rate3"  ng-change="change()"/></div>
 					
-					<div class="col-xs-1 inputCell control-label" ng-show="showRateInput(1)"><p class="inputCell text-left">{{rateUnits(1)}}</p></div>
+					<div class="col-xs-1 inputCell control-label" ng-show="showRateInput(1)" ng-animate=" 'animate' " ><p class="inputCell text-left">{{rateUnits(1)}}</p></div>
 					<div class="col-xs-1 inputCell control-label" ng-show="showRateInput(2)"><p class="inputCell text-left">{{rateUnits(2)}}</p></div>
 					<div class="col-xs-1 inputCell control-label" ng-show="showRateInput(3)"><p class="inputCell text-left">{{rateUnits(3)}}</p></div>
 					
