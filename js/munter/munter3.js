@@ -3,8 +3,15 @@ msa = angular.module("msApp", ["ngResource"]);
 msa.controller("GuidePlanCtrl", ["$scope", "waypoint",
     function($scope, waypoint) {
 		$scope.waypoints = [];
-		// Munter System units		
-		
+		// Munter System units	
+
+		// ##################################################
+		// PG: your god is down...
+		$scope.$watch("aNumber", function(current, old) {
+			$scope.prev_aNumber = old;
+		});
+		// ##################################################
+
 		 $scope.addWaypoint = function() {
             // should use AngularJS Service here to create a new model
             // ...but that's for later...

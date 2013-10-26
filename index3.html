@@ -35,11 +35,43 @@ UTM list
 				<li class="text-center pull-right"><a class="navBarText" ng-click="setMaxElevation(); setMinElevation(); setElevationGain(); setElevationLoss(); setTotalDistance();">summary view</a></li>
 				<li class="text-center pull-right"><a class="navBarText" href="chauvin_about.html">input view</a></li>
 				</ul>	
-		</nav>	
+		</nav>
 		
         <div>
-			<form role="form">
-				
+        	<!-- had to add a name to the form... -->
+			<form role="form" name="a_form">
+				<!-- sample input type="number" -->
+				<div class="row">
+					<div class="col-md-6">
+						<div class="form-group form-horizontal">
+							<label class="col-md-2 control-label" for="a_number"> number: </label>
+							<div class="col-xs-3">
+								<input type="number" name="a_number" class="form-control" ng-model="aNumber" placeholder="numbers only!" />
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-6">
+						<h4>
+							value: {{aNumber}} <span style="color:red" ng-show="aNumber === null">non-numeric input detected!</span>
+						</h4>
+<pre>
+		--- current value  --------------------
+		    value: {{aNumber}}
+		     null: {{aNumber === null}}
+		undefined: {{aNumber === undefined}}
+		--- previous value --------------------
+		    value: {{prev_aNumber}}
+		     null: {{prev_aNumber === null}}
+		undefined: {{prev_aNumber === undefined}}
+</pre>
+					</div>
+				</div>
+
+				<br>
+				<br>
+
 				<!-- user "settings" -->
 				<div class = "row">
 					<label class="col-xs-1 inputCell text-right control-label"> tour name: </label>
