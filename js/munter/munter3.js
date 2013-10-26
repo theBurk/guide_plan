@@ -142,9 +142,16 @@ msa.controller("GuidePlanCtrl", ["$scope", "waypoint",
 		
 		// calculates linear distance between two UTM coordinates in meters
 		$scope.calcLinearDistance = function(i) {
+			// ##################################################
+			// PG: I added this to fix an error. If you only have one waypoint (i.e. "i == 0") you can't calculate distance!
+			if ($scope.waypoints.length < 2) {
+				// not sure what you want to return here...
+				return null;  
+			}
+			// ##################################################
+
 			return  Math.sqrt(Math.pow($scope.waypoints[i].easting-$scope.waypoints[i-1].easting,2)+Math.pow($scope.waypoints[i].northing-$scope.waypoints[i-1].northing,2));
-		};		
-			
+		};
 			
 		// calculates bearing between two UTM coordinates in degrees
 		$scope.calcBearing = function(row) {
